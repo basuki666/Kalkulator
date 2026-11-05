@@ -45,13 +45,12 @@ jobs:
 
       - name: Pasang Buildozer
         run: |
-          python -m venv .venv
-          .venv/bin/python -m pip install --upgrade pip
-          .venv/bin/python -m pip install "Cython==0.29.36" buildozer
-          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+          python -m pip install --user --upgrade pip
+          python -m pip install --user "Cython==0.29.36" buildozer
+          echo "$(python -m site --user-base)/bin" >> "$GITHUB_PATH"
 
       - name: Bangun APK debug
-        run: .venv/bin/buildozer -v android debug
+        run: buildozer -v android debug
 
       - name: Unggah APK
         uses: actions/upload-artifact@v4

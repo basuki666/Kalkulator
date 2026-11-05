@@ -29,13 +29,18 @@ class WordQuestApp(App):
         self.selected = []
         self.busy = False
         self.enemy_names = ["Lumut Rakus", "Gagak Bara", "Ratu Kabut", "Naga Akar"]
-        self.root_box = BoxLayout(orientation="vertical", padding=dp(14), spacing=dp(9))
+        self.root_box = BoxLayout(orientation="horizontal", padding=dp(12), spacing=dp(10))
         self.root_box.bind(size=self._resize)
         with self.root_box.canvas.before:
             from kivy.graphics import Color, Rectangle
             self.bg_color = Color(*INK)
             self.bg_rect = Rectangle(pos=self.root_box.pos, size=self.root_box.size)
         self.root_box.bind(pos=self._pos)
+
+        self.battle_panel = BoxLayout(orientation="vertical", spacing=dp(7), size_hint_x=0.48)
+        self.game_panel = BoxLayout(orientation="vertical", spacing=dp(8), size_hint_x=0.52)
+        self.root_box.add_widget(self.battle_panel)
+        self.root_box.add_widget(self.game_panel)
 
         header = BoxLayout(size_hint_y=None, height=dp(42))
         self.title_label = Label(text="[b]RUNE & RIMBA[/b]", markup=True, color=GOLD,
@@ -44,7 +49,7 @@ class WordQuestApp(App):
                                  font_size="13sp", halign="right")
         header.add_widget(self.title_label)
         header.add_widget(self.stage_label)
-        self.root_box.add_widget(header)
+        self.battle_panel.add_widget(header)
 
         self.enemy_card = FloatLayout(size_hint_y=0.30)
         from kivy.graphics import Color, RoundedRectangle
@@ -75,14 +80,14 @@ class WordQuestApp(App):
         self.enemy_card.bind(size=self._layout_battle_sprites,
                              pos=self._layout_battle_sprites)
         self._layout_battle_sprites()
-        self.root_box.add_widget(self.enemy_card)
+        self.battle_panel.add_widget(self.enemy_card)
 
         self.message = Label(text="Pilih huruf untuk merangkai mantra serangan.", color=CREAM,
                              font_size="14sp", size_hint_y=None, height=dp(30))
-        self.root_box.add_widget(self.message)
+        self.battle_panel.add_widget(self.message)
         self.word_label = Label(text="—", color=GOLD, font_size="26sp", bold=True,
                                 size_hint_y=None, height=dp(42))
-        self.root_box.add_widget(self.word_label)
+        self.game_panel.add_widget(self.word_label)
 
         self.tiles = GridLayout(cols=4, spacing=dp(8), padding=dp(2), size_hint_y=0.40)
         self.tile_buttons = []
@@ -92,7 +97,7 @@ class WordQuestApp(App):
             b.bind(on_release=lambda btn, idx=i: self.pick(idx))
             self.tiles.add_widget(b)
             self.tile_buttons.append(b)
-        self.root_box.add_widget(self.tiles)
+        self.game_panel.add_widget(self.tiles)
 
         controls = BoxLayout(size_hint_y=None, height=dp(52), spacing=dp(8))
         self.clear_button = Button(text="HAPUS", font_size="14sp", background_normal="",
@@ -103,7 +108,7 @@ class WordQuestApp(App):
         self.attack_button.bind(on_release=lambda *_: self.attack())
         controls.add_widget(self.clear_button)
         controls.add_widget(self.attack_button)
-        self.root_box.add_widget(controls)
+        self.game_panel.add_widget(controls)
 
         self.hero_card = BoxLayout(orientation="vertical", padding=(dp(12), dp(5)), spacing=dp(3),
                                    size_hint_y=None, height=dp(66))
@@ -112,7 +117,7 @@ class WordQuestApp(App):
         self.hero_bar = ProgressBar(max=100, value=100, size_hint_y=None, height=dp(10))
         self.hero_card.add_widget(self.hero_label)
         self.hero_card.add_widget(self.hero_bar)
-        self.root_box.add_widget(self.hero_card)
+        self.battle_panel.add_widget(self.hero_card)
         self.new_tiles()
         return self.root_box
 
@@ -123,6 +128,8 @@ class WordQuestApp(App):
         self.hero_sprite.pos = (self.hero_start_x, self.enemy_card.height * 0.36)
         self.enemy_start_x = self.enemy_card.width * 0.70
         self.enemy_emoji.pos = (self.enemy_start_x, self.enemy_card.height * 0.34)
+        self.enemy_base_y = self.enemy_card.height * 0.34
+        self.enemy_base_font_size = self.enemy_emoji.font_size
         self.hit_effect.pos = (self.enemy_card.width * 0.49, self.enemy_card.height * 0.55)
 
     def _play_attack_animation(self):
@@ -142,6 +149,30 @@ class WordQuestApp(App):
                  Animation(x=self.enemy_start_x + dp(5), duration=0.05) +
                  Animation(x=self.enemy_start_x, duration=0.06))
         Clock.schedule_once(lambda _dt: shake.start(self.enemy_emoji), 0.22)
+
+    def _play_monster_attack_animation(self):
+        start_x = self.enemy_start_x
+        start_y = self.enemy_base_y
+        start_size = self.enemy_base_font_size
+        target_x = self.hero_start_x + dp(34)
+        lunge = (Animation(x=target_x, y=start_y + dp(9),
+                           font_size=start_size * 1.42, duration=0.22, t="out_back") +
+                 Animation(x=start_x, y=start_y, font_size=start_size,
+                           duration=0.30, t="out_quad"))
+        flash = (Animation(color=(1, 0.38, 0.22, 1), duration=0.12) +
+                 Animation(color=(1, 1, 1, 1), duration=0.32))
+        lunge.start(self.enemy_emoji)
+        flash.start(self.enemy_emoji)
+
+        hit = (Animation(opacity=1, duration=0.08) +
+               Animation(opacity=0, duration=0.28))
+
+        def show_hit_effect(_dt):
+            self.hit_effect.text = "💥"
+            hit.start(self.hit_effect)
+            Clock.schedule_once(lambda _later: setattr(self.hit_effect, "text", "⚔️✨"), 0.45)
+
+        Clock.schedule_once(show_hit_effect, 0.18)
 
     def _resize(self, *_):
         if hasattr(self, 'bg_rect'):
@@ -200,6 +231,7 @@ class WordQuestApp(App):
         Clock.schedule_once(self.after_attack, 0.68)
 
     def after_attack(self, _dt):
+        monster_counterattacked = False
         if self.enemy_hp <= 0:
             self.level += 1
             self.message.text = "Musuh tumbang! Perjalanan berlanjut…"
@@ -214,6 +246,8 @@ class WordQuestApp(App):
             self.enemy_bar.value = 100
             self.enemy_hp_label.text = "100 / 100"
         else:
+            monster_counterattacked = True
+            self._play_monster_attack_animation()
             hit = min(25, 8 + self.level * 3)
             self.hero_hp = max(0, self.hero_hp - hit)
             self.hero_bar.value = self.hero_hp
@@ -226,6 +260,12 @@ class WordQuestApp(App):
             else:
                 self.message.text += f"  {self.enemy_label.text.replace('[b]', '').replace('[/b]', '')} membalas {hit}!"
         self.new_tiles()
+        if monster_counterattacked:
+            Clock.schedule_once(self.finish_turn, 0.55)
+        else:
+            self.finish_turn()
+
+    def finish_turn(self, _dt=0):
         self.busy = False
         self.attack_button.disabled = False
         self.clear_button.disabled = False

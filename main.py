@@ -47,35 +47,42 @@ class MonsterSprite(Widget):
         cx = x + w * 0.5
         self.canvas.clear()
         with self.canvas:
-            # Shadow and layered body give the creature a rounded, shaded look.
             Color(0.03, 0.05, 0.09, 0.42)
-            Ellipse(pos=(x + w * 0.12, y + h * 0.04), size=(w * 0.76, h * 0.18))
+            Ellipse(pos=(x + w * 0.12, y + h * 0.03), size=(w * 0.76, h * 0.12))
+            # Separate legs and feet
             Color(*shade, 1)
-            Triangle(points=[x + w * 0.22, y + h * 0.62,
-                             x + w * 0.18, y + h * 0.98,
-                             x + w * 0.45, y + h * 0.77])
-            Triangle(points=[x + w * 0.78, y + h * 0.62,
-                             x + w * 0.82, y + h * 0.98,
-                             x + w * 0.55, y + h * 0.77])
+            RoundedRectangle(pos=(x + w * 0.32, y + h * 0.14), size=(w * 0.15, h * 0.25), radius=[w * 0.07])
+            RoundedRectangle(pos=(x + w * 0.54, y + h * 0.14), size=(w * 0.15, h * 0.25), radius=[w * 0.07])
             Color(*main, 1)
-            Ellipse(pos=(x + w * 0.16, y + h * 0.18), size=(w * 0.68, h * 0.68))
-            Color(*light, 1)
-            Ellipse(pos=(x + w * 0.24, y + h * 0.48), size=(w * 0.52, h * 0.34))
+            Ellipse(pos=(x + w * 0.24, y + h * 0.08), size=(w * 0.25, h * 0.12))
+            Ellipse(pos=(x + w * 0.51, y + h * 0.08), size=(w * 0.25, h * 0.12))
+            # Arms with visible hands
             Color(*shade, 1)
-            RoundedRectangle(pos=(x + w * 0.25, y + h * 0.34),
-                             size=(w * 0.50, h * 0.28), radius=[w * 0.12])
-            Color(1.0, 0.88, 0.43, 1)
-            Ellipse(pos=(x + w * 0.34, y + h * 0.49), size=(w * 0.10, h * 0.10))
-            Ellipse(pos=(x + w * 0.56, y + h * 0.49), size=(w * 0.10, h * 0.10))
-            Color(0.08, 0.10, 0.16, 1)
-            Ellipse(pos=(x + w * 0.37, y + h * 0.51), size=(w * 0.045, h * 0.07))
-            Ellipse(pos=(x + w * 0.59, y + h * 0.51), size=(w * 0.045, h * 0.07))
+            RoundedRectangle(pos=(x + w * 0.12, y + h * 0.40), size=(w * 0.20, h * 0.13), radius=[w * 0.06])
+            RoundedRectangle(pos=(x + w * 0.68, y + h * 0.40), size=(w * 0.20, h * 0.13), radius=[w * 0.06])
             Color(*light, 1)
-            Line(points=[cx - w * 0.13, y + h * 0.35,
-                        cx, y + h * 0.30,
-                        cx + w * 0.13, y + h * 0.35], width=max(1, dp(2)))
-            Color(1, 1, 1, 0.32)
-            Ellipse(pos=(x + w * 0.25, y + h * 0.68), size=(w * 0.19, h * 0.09))
+            Ellipse(pos=(x + w * 0.06, y + h * 0.37), size=(w * 0.16, h * 0.18))
+            Ellipse(pos=(x + w * 0.78, y + h * 0.37), size=(w * 0.16, h * 0.18))
+            # Broad torso, head and horns
+            Color(*main, 1)
+            RoundedRectangle(pos=(x + w * 0.25, y + h * 0.30), size=(w * 0.50, h * 0.40), radius=[w * 0.17])
+            Color(*light, 1)
+            Ellipse(pos=(x + w * 0.34, y + h * 0.38), size=(w * 0.32, h * 0.18))
+            Color(*shade, 1)
+            Triangle(points=[x + w * 0.32, y + h * 0.64, x + w * 0.30, y + h * 0.91, x + w * 0.47, y + h * 0.70])
+            Triangle(points=[x + w * 0.68, y + h * 0.64, x + w * 0.70, y + h * 0.91, x + w * 0.53, y + h * 0.70])
+            Color(*main, 1)
+            Ellipse(pos=(x + w * 0.29, y + h * 0.58), size=(w * 0.42, h * 0.32))
+            Color(*light, 1)
+            Ellipse(pos=(x + w * 0.33, y + h * 0.71), size=(w * 0.34, h * 0.14))
+            Color(1.0, 0.88, 0.43, 1)
+            Ellipse(pos=(x + w * 0.37, y + h * 0.70), size=(w * 0.09, h * 0.09))
+            Ellipse(pos=(x + w * 0.54, y + h * 0.70), size=(w * 0.09, h * 0.09))
+            Color(0.08, 0.10, 0.16, 1)
+            Ellipse(pos=(x + w * 0.40, y + h * 0.72), size=(w * 0.035, h * 0.06))
+            Ellipse(pos=(x + w * 0.57, y + h * 0.72), size=(w * 0.035, h * 0.06))
+            Color(*light, 1)
+            Line(points=[cx - w * 0.10, y + h * 0.63, cx, y + h * 0.60, cx + w * 0.10, y + h * 0.63], width=max(1, dp(2)))
 
 
 class WordQuestApp(App):
@@ -121,13 +128,13 @@ class WordQuestApp(App):
 
         self.enemy_sprite = MonsterSprite(size_hint=(None, None), size=(dp(112), dp(112)))
         self.enemy_label = Label(text="[b]Lumut Rakus[/b]", markup=True, color=CREAM,
-                                 font_size="18sp", size_hint=(0.50, None), height=dp(28),
-                                 pos_hint={"center_x": 0.46, "center_y": 0.37})
-        self.enemy_bar = ProgressBar(max=100, value=100, size_hint=(0.66, None),
-                                     height=dp(12), pos_hint={"center_x": 0.46, "y": 0.10})
+                                 font_size="16sp", size_hint=(0.52, None), height=dp(30),
+                                 pos_hint={"center_x": 0.30, "center_y": 0.80})
+        self.enemy_bar = ProgressBar(max=100, value=100, size_hint=(0.90, None),
+                                     height=dp(12), pos_hint={"center_x": 0.50, "y": 0.11})
         self.enemy_hp_label = Label(text="100 / 100", color=CREAM, font_size="12sp",
-                                    size_hint=(0.66, None), height=dp(18),
-                                    pos_hint={"center_x": 0.46, "y": 0.01})
+                                    size_hint=(0.90, None), height=dp(18),
+                                    pos_hint={"center_x": 0.50, "y": 0.01})
         self.hero_sprite = Label(text="ARU", font_size="13sp", bold=True, color=GOLD,
                                  size_hint=(None, None), size=(dp(62), dp(62)))
         self.hit_effect = Label(text="HIT!", font_size="20sp", bold=True, color=GOLD,
@@ -163,7 +170,7 @@ class WordQuestApp(App):
         self.clear_button = Button(text="HAPUS", font_size="14sp", background_normal="",
                                    background_color=(0.36, 0.39, 0.48, 1))
         self.clear_button.bind(on_release=lambda *_: self.clear_word())
-        self.attack_button = Button(text="SERANG ✦", font_size="16sp", bold=True,
+        self.attack_button = Button(text="SERANG", font_size="16sp", bold=True,
                                     background_normal="", background_color=GOLD, color=INK)
         self.attack_button.bind(on_release=lambda *_: self.attack())
         controls.add_widget(self.clear_button)
@@ -172,7 +179,7 @@ class WordQuestApp(App):
 
         self.hero_card = BoxLayout(orientation="vertical", padding=(dp(12), dp(5)), spacing=dp(3),
                                    size_hint_y=None, height=dp(66))
-        self.hero_label = Label(text="[b]Aru · Penjelajah Rune[/b]     ❤️ 100 / 100",
+        self.hero_label = Label(text="[b]Aru · Penjelajah Rune[/b]     HP 100 / 100",
                                 markup=True, color=CREAM, font_size="14sp", halign="left")
         self.hero_bar = ProgressBar(max=100, value=100, size_hint_y=None, height=dp(10))
         self.hero_card.add_widget(self.hero_label)
@@ -186,9 +193,9 @@ class WordQuestApp(App):
             return
         self.hero_start_x = dp(14)
         self.hero_sprite.pos = (self.hero_start_x, self.enemy_card.height * 0.36)
-        monster_size = min(dp(112), self.enemy_card.height * 0.78)
-        self.enemy_start_x = self.enemy_card.width * 0.69
-        self.enemy_base_y = self.enemy_card.height * 0.30
+        monster_size = min(dp(154), self.enemy_card.height * 0.76, self.enemy_card.width * 0.42)
+        self.enemy_start_x = self.enemy_card.width - monster_size - dp(10)
+        self.enemy_base_y = self.enemy_card.height * 0.19
         self.enemy_base_size = (monster_size, monster_size)
         self.enemy_sprite.size = self.enemy_base_size
         self.enemy_sprite.pos = (self.enemy_start_x, self.enemy_base_y)
@@ -311,11 +318,11 @@ class WordQuestApp(App):
             hit = min(25, 8 + self.level * 3)
             self.hero_hp = max(0, self.hero_hp - hit)
             self.hero_bar.value = self.hero_hp
-            self.hero_label.text = f"[b]Aru · Penjelajah Rune[/b]     ❤️ {self.hero_hp} / 100"
+            self.hero_label.text = f"[b]Aru · Penjelajah Rune[/b]     HP {self.hero_hp} / 100"
             if self.hero_hp <= 0:
                 self.hero_hp = 100
                 self.hero_bar.value = 100
-                self.hero_label.text = "[b]Aru · Penjelajah Rune[/b]     ❤️ 100 / 100"
+                self.hero_label.text = "[b]Aru · Penjelajah Rune[/b]     HP 100 / 100"
                 self.message.text = "Aru beristirahat dan pulih. Coba rangkai kata lebih panjang!"
             else:
                 self.message.text += f"  {self.enemy_label.text.replace('[b]', '').replace('[/b]', '')} membalas {hit}!"

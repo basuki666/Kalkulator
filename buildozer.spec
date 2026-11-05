@@ -6,13 +6,13 @@
 [app]
 
 # (str) Title of your application
-title = My Application
+title = Rune & Rimba
 
 # (str) Package name
-package.name = myapp
+package.name = runeandrimba
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+package.domain = id.petualangan
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -141,7 +141,7 @@ fullscreen = 0
 # agreements. This is intended for automation only. If set to False,
 # the default, you will be shown the license when first running
 # buildozer.
-# android.accept_sdk_license = False
+android.accept_sdk_license = True
 
 # (str) Android entry point, default is ok for Kivy-based app
 #android.entrypoint = org.kivy.android.PythonActivity
@@ -453,12 +453,12 @@ warn_on_root = 1
 #
 #   Warning: Comments cannot be used "inline" - i.e.
 #       [app]
-#       title = My Application # This is not a comment, it is part of the title.
+#       title = Rune & Rimba # This is not a comment, it is part of the title.
 #
 #   Warning: Indented text is treated as a multiline string - i.e.
 #       [app]
-#       title = My Application
-#          package.name = myapp # This is all part of the title.
+#       title = Rune & Rimba
+#          package.name = runeandrimba # This is all part of the title.
 #
 #   Buildozer's .spec files have some additional features:
 #
@@ -485,7 +485,7 @@ warn_on_root = 1
 #   and extend the excluded directories to remove the HD content.
 #
 #       [app@demo]
-#       title = My Application (demo)
+#       title = Rune & Rimba (demo)
 #
 #       [app:source.exclude_patterns@demo]
 #       images/hd/*

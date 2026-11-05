@@ -1,0 +1,61 @@
+name: Build APK Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build debug APK
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONUNBUFFERED: "1"
+      PYTHONFORANDROID_PREREQUISITES_INSTALL_INTERACTIVE: "0"
+    steps:
+      - name: Ambil source code
+        uses: actions/checkout@v4
+
+      - name: Siapkan Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Siapkan Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Pasang dependensi Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf automake cmake gettext git libffi-dev libltdl-dev \
+            libncurses5-dev libncursesw5-dev libssl-dev libtool \
+            openjdk-17-jdk pkg-config python3-pip python3-venv \
+            unzip zip zlib1g-dev
+
+      - name: Pasang Buildozer
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install buildozer
+
+      - name: Bangun APK debug
+        run: .venv/bin/buildozer -v android debug
+
+      - name: Unggah APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rune-rimba-debug-apk
+          path: bin/*.apk
+          if-no-files-found: error
+          retention-days: 14

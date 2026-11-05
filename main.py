@@ -103,8 +103,8 @@ class WordQuestApp(App):
             self.bg_rect = Rectangle(pos=self.root_box.pos, size=self.root_box.size)
         self.root_box.bind(pos=self._pos)
 
-        self.battle_panel = BoxLayout(orientation="vertical", spacing=dp(7), size_hint_x=0.48)
-        self.game_panel = BoxLayout(orientation="vertical", spacing=dp(8), size_hint_x=0.52)
+        self.battle_panel = BoxLayout(orientation="vertical", spacing=dp(7), size_hint_x=0.56)
+        self.game_panel = BoxLayout(orientation="vertical", spacing=dp(8), size_hint_x=0.44)
         self.root_box.add_widget(self.battle_panel)
         self.root_box.add_widget(self.game_panel)
 
@@ -117,7 +117,7 @@ class WordQuestApp(App):
         header.add_widget(self.stage_label)
         self.battle_panel.add_widget(header)
 
-        self.enemy_card = FloatLayout(size_hint_y=0.30)
+        self.enemy_card = FloatLayout(size_hint_y=0.46)
         from kivy.graphics import Color, RoundedRectangle
         with self.enemy_card.canvas.before:
             Color(*PANEL)
@@ -128,7 +128,7 @@ class WordQuestApp(App):
 
         self.enemy_sprite = MonsterSprite(size_hint=(None, None), size=(dp(112), dp(112)))
         self.enemy_label = Label(text="[b]Lumut Rakus[/b]", markup=True, color=CREAM,
-                                 font_size="16sp", size_hint=(0.52, None), height=dp(30),
+                                 font_size="15sp", size_hint=(0.54, None), height=dp(30),
                                  pos_hint={"center_x": 0.30, "center_y": 0.80})
         self.enemy_bar = ProgressBar(max=100, value=100, size_hint=(0.90, None),
                                      height=dp(12), pos_hint={"center_x": 0.50, "y": 0.11})
@@ -193,9 +193,9 @@ class WordQuestApp(App):
             return
         self.hero_start_x = dp(14)
         self.hero_sprite.pos = (self.hero_start_x, self.enemy_card.height * 0.36)
-        monster_size = min(dp(154), self.enemy_card.height * 0.76, self.enemy_card.width * 0.42)
-        self.enemy_start_x = self.enemy_card.width - monster_size - dp(10)
-        self.enemy_base_y = self.enemy_card.height * 0.19
+        monster_size = min(dp(160), self.enemy_card.height * 0.84, self.enemy_card.width * 0.32)
+        self.enemy_start_x = self.enemy_card.width - monster_size - dp(8)
+        self.enemy_base_y = self.enemy_card.height * 0.14
         self.enemy_base_size = (monster_size, monster_size)
         self.enemy_sprite.size = self.enemy_base_size
         self.enemy_sprite.pos = (self.enemy_start_x, self.enemy_base_y)
@@ -224,8 +224,11 @@ class WordQuestApp(App):
         start_y = self.enemy_base_y
         start_size = self.enemy_base_size
         target_x = self.hero_start_x + dp(34)
-        enlarged = (start_size[0] * 1.42, start_size[1] * 1.42)
-        lunge = (Animation(x=target_x, y=start_y + dp(9), size=enlarged,
+        enlarged = (start_size[0] * 1.15, start_size[1] * 1.15)
+        # Keep the monster in its right-side arena while lunging so it never crosses the name.
+        target_x = max(self.enemy_card.width * 0.60,
+                       self.enemy_card.width - enlarged[0] - dp(8))
+        lunge = (Animation(x=target_x, y=start_y + dp(5), size=enlarged,
                            duration=0.22, t="out_back") +
                  Animation(x=start_x, y=start_y, size=start_size,
                            duration=0.30, t="out_quad"))

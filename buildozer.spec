@@ -6,7 +6,7 @@
 [app]
 
 # (str) Title of your application
-title = Rune & Rimba
+title = Rune dan Rimba
 
 # (str) Package name
 package.name = runeandrimba

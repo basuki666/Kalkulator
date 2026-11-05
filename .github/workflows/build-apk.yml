@@ -47,7 +47,7 @@ jobs:
         run: |
           python -m venv .venv
           .venv/bin/python -m pip install --upgrade pip
-          .venv/bin/python -m pip install buildozer
+          .venv/bin/python -m pip install "Cython==0.29.36" buildozer
 
       - name: Bangun APK debug
         run: .venv/bin/buildozer -v android debug

@@ -50,13 +50,12 @@ jobs:
           echo "$(python -m site --user-base)/bin" >> "$GITHUB_PATH"
 
       - name: Bangun APK debug
-        working-directory: AplikasiSaya
         run: buildozer -v android debug
 
       - name: Unggah APK
         uses: actions/upload-artifact@v4
         with:
           name: rune-rimba-debug-apk
-          path: AplikasiSaya/bin/*.apk
+          path: bin/*.apk
           if-no-files-found: error
           retention-days: 14

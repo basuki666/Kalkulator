@@ -3,6 +3,7 @@ import random
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.metrics import dp
+from kivy.graphics import Color, Ellipse, Line, RoundedRectangle, Triangle
 from kivy.animation import Animation
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -17,6 +18,64 @@ INK = (0.10, 0.12, 0.19, 1)
 PANEL = (0.17, 0.20, 0.29, 1)
 GOLD = (0.96, 0.72, 0.30, 1)
 CREAM = (0.97, 0.91, 0.75, 1)
+
+
+class MonsterSprite(Widget):
+    PALETTES = (
+        ((0.20, 0.62, 0.37), (0.39, 0.82, 0.48), (0.12, 0.36, 0.25)),
+        ((0.72, 0.30, 0.20), (0.96, 0.54, 0.28), (0.40, 0.16, 0.20)),
+        ((0.31, 0.52, 0.78), (0.60, 0.77, 0.96), (0.16, 0.28, 0.52)),
+        ((0.48, 0.32, 0.72), (0.73, 0.52, 0.91), (0.26, 0.18, 0.44)),
+    )
+
+    def __init__(self, variant=0, **kwargs):
+        super().__init__(**kwargs)
+        self.variant = variant
+        self.bind(pos=self.redraw, size=self.redraw)
+        self.redraw()
+
+    def set_variant(self, variant):
+        self.variant = variant % len(self.PALETTES)
+        self.redraw()
+
+    def redraw(self, *_):
+        if self.width <= 0 or self.height <= 0:
+            return
+        x, y = self.pos
+        w, h = self.size
+        main, light, shade = self.PALETTES[self.variant]
+        cx = x + w * 0.5
+        self.canvas.clear()
+        with self.canvas:
+            # Shadow and layered body give the creature a rounded, shaded look.
+            Color(0.03, 0.05, 0.09, 0.42)
+            Ellipse(pos=(x + w * 0.12, y + h * 0.04), size=(w * 0.76, h * 0.18))
+            Color(*shade, 1)
+            Triangle(points=[x + w * 0.22, y + h * 0.62,
+                             x + w * 0.18, y + h * 0.98,
+                             x + w * 0.45, y + h * 0.77])
+            Triangle(points=[x + w * 0.78, y + h * 0.62,
+                             x + w * 0.82, y + h * 0.98,
+                             x + w * 0.55, y + h * 0.77])
+            Color(*main, 1)
+            Ellipse(pos=(x + w * 0.16, y + h * 0.18), size=(w * 0.68, h * 0.68))
+            Color(*light, 1)
+            Ellipse(pos=(x + w * 0.24, y + h * 0.48), size=(w * 0.52, h * 0.34))
+            Color(*shade, 1)
+            RoundedRectangle(pos=(x + w * 0.25, y + h * 0.34),
+                             size=(w * 0.50, h * 0.28), radius=[w * 0.12])
+            Color(1.0, 0.88, 0.43, 1)
+            Ellipse(pos=(x + w * 0.34, y + h * 0.49), size=(w * 0.10, h * 0.10))
+            Ellipse(pos=(x + w * 0.56, y + h * 0.49), size=(w * 0.10, h * 0.10))
+            Color(0.08, 0.10, 0.16, 1)
+            Ellipse(pos=(x + w * 0.37, y + h * 0.51), size=(w * 0.045, h * 0.07))
+            Ellipse(pos=(x + w * 0.59, y + h * 0.51), size=(w * 0.045, h * 0.07))
+            Color(*light, 1)
+            Line(points=[cx - w * 0.13, y + h * 0.35,
+                        cx, y + h * 0.30,
+                        cx + w * 0.13, y + h * 0.35], width=max(1, dp(2)))
+            Color(1, 1, 1, 0.32)
+            Ellipse(pos=(x + w * 0.25, y + h * 0.68), size=(w * 0.19, h * 0.09))
 
 
 class WordQuestApp(App):
@@ -60,8 +119,7 @@ class WordQuestApp(App):
         self.enemy_card.bind(pos=lambda w, p: setattr(self.card_rect, 'pos', p),
                              size=lambda w, s: setattr(self.card_rect, 'size', s))
 
-        self.enemy_emoji = Label(text="🍃", font_size="48sp", size_hint=(None, None),
-                                 size=(dp(64), dp(62)))
+        self.enemy_sprite = MonsterSprite(size_hint=(None, None), size=(dp(112), dp(112)))
         self.enemy_label = Label(text="[b]Lumut Rakus[/b]", markup=True, color=CREAM,
                                  font_size="18sp", size_hint=(0.55, None), height=dp(28),
                                  pos_hint={"center_x": 0.58, "center_y": 0.37})
@@ -74,7 +132,7 @@ class WordQuestApp(App):
                                  size=(dp(62), dp(62)))
         self.hit_effect = Label(text="⚔️✨", font_size="30sp", size_hint=(None, None),
                                 size=(dp(76), dp(48)), opacity=0)
-        for w in (self.enemy_emoji, self.enemy_label, self.enemy_bar, self.enemy_hp_label,
+        for w in (self.enemy_sprite, self.enemy_label, self.enemy_bar, self.enemy_hp_label,
                   self.hero_sprite, self.hit_effect):
             self.enemy_card.add_widget(w)
         self.enemy_card.bind(size=self._layout_battle_sprites,
@@ -126,10 +184,12 @@ class WordQuestApp(App):
             return
         self.hero_start_x = dp(14)
         self.hero_sprite.pos = (self.hero_start_x, self.enemy_card.height * 0.36)
-        self.enemy_start_x = self.enemy_card.width * 0.70
-        self.enemy_emoji.pos = (self.enemy_start_x, self.enemy_card.height * 0.34)
-        self.enemy_base_y = self.enemy_card.height * 0.34
-        self.enemy_base_font_size = self.enemy_emoji.font_size
+        monster_size = min(dp(112), self.enemy_card.height * 0.78)
+        self.enemy_start_x = self.enemy_card.width * 0.69
+        self.enemy_base_y = self.enemy_card.height * 0.30
+        self.enemy_base_size = (monster_size, monster_size)
+        self.enemy_sprite.size = self.enemy_base_size
+        self.enemy_sprite.pos = (self.enemy_start_x, self.enemy_base_y)
         self.hit_effect.pos = (self.enemy_card.width * 0.49, self.enemy_card.height * 0.55)
 
     def _play_attack_animation(self):
@@ -148,21 +208,19 @@ class WordQuestApp(App):
                  Animation(x=self.enemy_start_x - dp(8), duration=0.06) +
                  Animation(x=self.enemy_start_x + dp(5), duration=0.05) +
                  Animation(x=self.enemy_start_x, duration=0.06))
-        Clock.schedule_once(lambda _dt: shake.start(self.enemy_emoji), 0.22)
+        Clock.schedule_once(lambda _dt: shake.start(self.enemy_sprite), 0.22)
 
     def _play_monster_attack_animation(self):
         start_x = self.enemy_start_x
         start_y = self.enemy_base_y
-        start_size = self.enemy_base_font_size
+        start_size = self.enemy_base_size
         target_x = self.hero_start_x + dp(34)
-        lunge = (Animation(x=target_x, y=start_y + dp(9),
-                           font_size=start_size * 1.42, duration=0.22, t="out_back") +
-                 Animation(x=start_x, y=start_y, font_size=start_size,
+        enlarged = (start_size[0] * 1.42, start_size[1] * 1.42)
+        lunge = (Animation(x=target_x, y=start_y + dp(9), size=enlarged,
+                           duration=0.22, t="out_back") +
+                 Animation(x=start_x, y=start_y, size=start_size,
                            duration=0.30, t="out_quad"))
-        flash = (Animation(color=(1, 0.38, 0.22, 1), duration=0.12) +
-                 Animation(color=(1, 1, 1, 1), duration=0.32))
-        lunge.start(self.enemy_emoji)
-        flash.start(self.enemy_emoji)
+        lunge.start(self.enemy_sprite)
 
         hit = (Animation(opacity=1, duration=0.08) +
                Animation(opacity=0, duration=0.28))
@@ -241,7 +299,7 @@ class WordQuestApp(App):
             self.enemy_hp = 100
             name = self.enemy_names[(self.level - 1) % len(self.enemy_names)]
             self.enemy_label.text = f"[b]{name}[/b]"
-            self.enemy_emoji.text = ["🍃", "🐦‍⬛", "🌫️", "🐉"][(self.level - 1) % 4]
+            self.enemy_sprite.set_variant(self.level - 1)
             self.stage_label.text = f"Bab {self.level} · Hutan Berbisik"
             self.enemy_bar.value = 100
             self.enemy_hp_label.text = "100 / 100"

@@ -121,17 +121,17 @@ class WordQuestApp(App):
 
         self.enemy_sprite = MonsterSprite(size_hint=(None, None), size=(dp(112), dp(112)))
         self.enemy_label = Label(text="[b]Lumut Rakus[/b]", markup=True, color=CREAM,
-                                 font_size="18sp", size_hint=(0.55, None), height=dp(28),
-                                 pos_hint={"center_x": 0.58, "center_y": 0.37})
-        self.enemy_bar = ProgressBar(max=100, value=100, size_hint=(0.72, None),
-                                     height=dp(12), pos_hint={"center_x": 0.58, "y": 0.10})
+                                 font_size="18sp", size_hint=(0.50, None), height=dp(28),
+                                 pos_hint={"center_x": 0.46, "center_y": 0.37})
+        self.enemy_bar = ProgressBar(max=100, value=100, size_hint=(0.66, None),
+                                     height=dp(12), pos_hint={"center_x": 0.46, "y": 0.10})
         self.enemy_hp_label = Label(text="100 / 100", color=CREAM, font_size="12sp",
-                                    size_hint=(0.72, None), height=dp(18),
-                                    pos_hint={"center_x": 0.58, "y": 0.01})
-        self.hero_sprite = Label(text="🧙", font_size="42sp", size_hint=(None, None),
-                                 size=(dp(62), dp(62)))
-        self.hit_effect = Label(text="⚔️✨", font_size="30sp", size_hint=(None, None),
-                                size=(dp(76), dp(48)), opacity=0)
+                                    size_hint=(0.66, None), height=dp(18),
+                                    pos_hint={"center_x": 0.46, "y": 0.01})
+        self.hero_sprite = Label(text="ARU", font_size="13sp", bold=True, color=GOLD,
+                                 size_hint=(None, None), size=(dp(62), dp(62)))
+        self.hit_effect = Label(text="HIT!", font_size="20sp", bold=True, color=GOLD,
+                                size_hint=(None, None), size=(dp(76), dp(48)), opacity=0)
         for w in (self.enemy_sprite, self.enemy_label, self.enemy_bar, self.enemy_hp_label,
                   self.hero_sprite, self.hit_effect):
             self.enemy_card.add_widget(w)
@@ -141,7 +141,9 @@ class WordQuestApp(App):
         self.battle_panel.add_widget(self.enemy_card)
 
         self.message = Label(text="Pilih huruf untuk merangkai mantra serangan.", color=CREAM,
-                             font_size="14sp", size_hint_y=None, height=dp(30))
+                             font_size="13sp", halign="left", valign="middle",
+                             size_hint_y=None, height=dp(56))
+        self.message.bind(size=lambda w, s: setattr(w, "text_size", (s[0], None)))
         self.battle_panel.add_widget(self.message)
         self.word_label = Label(text="—", color=GOLD, font_size="26sp", bold=True,
                                 size_hint_y=None, height=dp(42))
@@ -190,7 +192,7 @@ class WordQuestApp(App):
         self.enemy_base_size = (monster_size, monster_size)
         self.enemy_sprite.size = self.enemy_base_size
         self.enemy_sprite.pos = (self.enemy_start_x, self.enemy_base_y)
-        self.hit_effect.pos = (self.enemy_card.width * 0.49, self.enemy_card.height * 0.55)
+        self.hit_effect.pos = (self.enemy_card.width * 0.51, self.enemy_card.height * 0.55)
 
     def _play_attack_animation(self):
         hero_target_x = max(self.hero_start_x + dp(55), self.enemy_start_x - dp(32))
@@ -226,9 +228,9 @@ class WordQuestApp(App):
                Animation(opacity=0, duration=0.28))
 
         def show_hit_effect(_dt):
-            self.hit_effect.text = "💥"
+            self.hit_effect.text = "POW!"
             hit.start(self.hit_effect)
-            Clock.schedule_once(lambda _later: setattr(self.hit_effect, "text", "⚔️✨"), 0.45)
+            Clock.schedule_once(lambda _later: setattr(self.hit_effect, "text", "HIT!"), 0.45)
 
         Clock.schedule_once(show_hit_effect, 0.18)
 

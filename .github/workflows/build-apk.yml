@@ -48,6 +48,7 @@ jobs:
           python -m venv .venv
           .venv/bin/python -m pip install --upgrade pip
           .venv/bin/python -m pip install "Cython==0.29.36" buildozer
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Bangun APK debug
         run: .venv/bin/buildozer -v android debug
